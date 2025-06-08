@@ -130,7 +130,7 @@
 
 import simpy
 import random
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from système_de_contrôle_des_feux_de_circulation import simulateur_dfv  # on importe notre contrôleur flou
 
 # Paramètres de simulation
@@ -271,6 +271,7 @@ class Intersection:
 
 
     def plot_stats(self):
+        import matplotlib.pyplot as plt
         t = self.historique['temps']
         file_ns = self.historique['file_NS']
         file_ew = self.historique['file_EW']
@@ -300,33 +301,61 @@ class Intersection:
         plt.tight_layout()
         plt.show()
 
-        def print_stats(self):
-            print("\n========= STATISTIQUES DE SIMULATION =========")
-            total_veh = self.stats['veh_passes_NS'] + self.stats['veh_passes_EW']
-            print(f"Véhicules passés (NS) : {self.stats['veh_passes_NS']}")
-            print(f"Véhicules passés (EW) : {self.stats['veh_passes_EW']}")
-            print(f"Total véhicules passés : {total_veh}")
+    def print_stats(self):
+        print("\n========= STATISTIQUES DE SIMULATION =========")
+        total_veh = self.stats['veh_passes_NS'] + self.stats['veh_passes_EW']
+        print(f"Véhicules passés (NS) : {self.stats['veh_passes_NS']}")
+        print(f"Véhicules passés (EW) : {self.stats['veh_passes_EW']}")
+        print(f"Total véhicules passés : {total_veh}")
             
-            print(f"Temps vert (NS) : {self.stats['time_green_NS']:.1f}s")
-            print(f"Temps vert (EW) : {self.stats['time_green_EW']:.1f}s")
-            print(f"Temps total simulé : {self.stats['total_time']:.1f}s")
+        print(f"Temps vert (NS) : {self.stats['time_green_NS']:.1f}s")
+        print(f"Temps vert (EW) : {self.stats['time_green_EW']:.1f}s")
+        print(f"Temps total simulé : {self.stats['total_time']:.1f}s")
+
+        if self.stats['total_time'] > 0:
+            taux_utilisation = 100 * (self.stats['time_green_NS'] + self.stats['time_green_EW']) / self.stats['total_time']
+            print(f"Taux d’utilisation des feux verts : {taux_utilisation:.1f}%")
+
+        if self.stats['veh_passes_NS'] > 0:
+            moyenne_NS = self.attente_totale_NS / self.stats['veh_passes_NS']
+        else:
+            moyenne_NS = 0
+
+        if self.stats['veh_passes_EW'] > 0:
+            moyenne_EW = self.attente_totale_EW / self.stats['veh_passes_EW']
+        else:
+            moyenne_EW = 0
+
+        print(f"Temps d’attente moyen (NS) : {moyenne_NS:.1f} sec")
+        print(f"Temps d’attente moyen (EW) : {moyenne_EW:.1f} sec")
+
+    def export_rapport(self, filename="rapport_simulation.txt"):
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write("========= RAPPORT DE SIMULATION =========\n\n")
+            total_veh = self.stats['veh_passes_NS'] + self.stats['veh_passes_EW']
+            f.write(f"🕒 Durée simulée          : {self.stats['total_time']:.1f} s\n")
+            f.write(f"🚗 Véhicules passés (NS)  : {self.stats['veh_passes_NS']}\n")
+            f.write(f"🚗 Véhicules passés (EW)  : {self.stats['veh_passes_EW']}\n")
+            f.write(f"🚦 Total véhicules passés : {total_veh}\n\n")
+
+            f.write(f"🟩 Temps vert (NS)        : {self.stats['time_green_NS']:.1f} s\n")
+            f.write(f"🟧 Temps vert (EW)        : {self.stats['time_green_EW']:.1f} s\n")
 
             if self.stats['total_time'] > 0:
                 taux_utilisation = 100 * (self.stats['time_green_NS'] + self.stats['time_green_EW']) / self.stats['total_time']
-                print(f"Taux d’utilisation des feux verts : {taux_utilisation:.1f}%")
-
-            if self.stats['veh_passes_NS'] > 0:
-                moyenne_NS = self.attente_totale_NS / self.stats['veh_passes_NS']
             else:
-                moyenne_NS = 0
+                taux_utilisation = 0.0
+            f.write(f"📊 Taux utilisation feux  : {taux_utilisation:.1f} %\n\n")
 
-            if self.stats['veh_passes_EW'] > 0:
-                moyenne_EW = self.attente_totale_EW / self.stats['veh_passes_EW']
-            else:
-                moyenne_EW = 0
+            # Temps d’attente moyens
+            moyenne_NS = self.attente_totale_NS / self.stats['veh_passes_NS'] if self.stats['veh_passes_NS'] > 0 else 0
+            moyenne_EW = self.attente_totale_EW / self.stats['veh_passes_EW'] if self.stats['veh_passes_EW'] > 0 else 0
 
-            print(f"Temps d’attente moyen (NS) : {moyenne_NS:.1f} sec")
-            print(f"Temps d’attente moyen (EW) : {moyenne_EW:.1f} sec")
+            f.write(f"⏱️ Temps attente moyen (NS) : {moyenne_NS:.1f} s\n")
+            f.write(f"⏱️ Temps attente moyen (EW) : {moyenne_EW:.1f} s\n")
+            f.write("\n=========================================\n")
+            print(f"\n📄 Rapport sauvegardé dans : {filename}")
+
 
 # Exécution principale
 if __name__ == '__main__':
@@ -335,3 +364,4 @@ if __name__ == '__main__':
     env.run(until=SIMULATION_DURATION)
     intersection.print_stats()
     intersection.plot_stats()
+    intersection.export_rapport()

@@ -1,0 +1,15 @@
+========= RAPPORT DE SIMULATION =========
+
+🕒 Durée simulée          : 320.1 s
+🚗 Véhicules passés (NS)  : 59
+🚗 Véhicules passés (EW)  : 36
+🚦 Total véhicules passés : 95
+
+🟩 Temps vert (NS)        : 166.0 s
+🟧 Temps vert (EW)        : 109.1 s
+📊 Taux utilisation feux  : 85.9 %
+
+⏱️ Temps attente moyen (NS) : 26.8 s
+⏱️ Temps attente moyen (EW) : 33.0 s
+
+=========================================
